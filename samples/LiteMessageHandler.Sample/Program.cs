@@ -6,8 +6,10 @@ internal class Program
 {
     static void Main()
     {
-        MessageHandlerDispatcher.Load();
-        MessageHandlerDispatcher.Dispatch(new PersonRequest
+        var messageDispatcher = new MessageHandlerDispatcher();
+
+        messageDispatcher.Load();
+        messageDispatcher.Dispatch(new PersonRequest
         {
             FirstName = "John",
             LastName = "Doe"
@@ -15,9 +17,9 @@ internal class Program
     }
 }
 
-public class PersonRequestHandler : MessageHandler<PersonRequest>
+public class PersonRequestHandler : IMessageHandler<PersonRequest>
 {
-    public override void Execute(PersonRequest message)
+    public void Execute(PersonRequest message)
     {
         Console.WriteLine($"AuthRequest: {message.FirstName} {message.LastName}");
     }

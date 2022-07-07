@@ -1,62 +1,22 @@
-﻿using MessageHandler.Extensions;
+﻿using LiteMessageHandler.Internal;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace LiteMessageHandler;
 
-public abstract class MessageHandler<TMessage>
+public class MessageHandler
 {
-    public abstract void Execute(TMessage message);
-}
+    private readonly MessageHandlerExecutor _executor;
 
-public class MessageHandlerAction
-{
-    public Type HandlerType { get; }
+    public object Target { get; }
 
-    public Type? HandlerParameterType { get; }
-
-    public MessageHandlerAction(Type? handlerType)
+    internal MessageHandler(object? target, MessageHandlerExecutor? executor)
     {
-        HandlerType = handlerType ?? throw new ArgumentNullException(nameof(handlerType));
-
-        var genericType = handlerType.FindGenericType(typeof(MessageHandler<>));
-
-        if (genericType != null && genericType.IsGenericType)
-        {
-            HandlerParameterType = genericType.GetGenericArguments().Single();
-        }
-    }
-}
-
-
-public static class MessageHandlerDispatcher
-{
-    private static readonly Dictionary<Type, MessageHandlerAction> _handlers = new();
-
-    public static void Load()
-    {
-        var handlers = from x in AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
-                       where x.IsClass && !x.IsAbstract && x.ImplementsGenericType(typeof(MessageHandler<>))
-                       select new MessageHandlerAction(x);
-
-        foreach (var handler in handlers)
-        {
-            _handlers.Add(handler.HandlerParameterType, handler);
-        }
+        Target = target ?? throw new ArgumentNullException(nameof(target));
+        _executor = executor ?? throw new ArgumentNullException(nameof(executor));
     }
 
-    public static void Dispatch<TMessage>(TMessage message)
+    public void Execute(object parameter)
     {
-        if (_handlers.TryGetValue(typeof(TMessage), out var handler))
-        {
-            var h = Activator.CreateInstance(handler.HandlerType) as MessageHandler<TMessage>;
-
-            if (h != null)
-            {
-                h.Execute(message);
-            }
-        }
+        _executor.Execute(Target, parameter);
     }
 }

@@ -1,51 +1,78 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MessageHandler.Extensions;
 
 internal static class ReflectionExtensions
 {
-    public static bool ImplementsGenericType(this Type sourceType, Type genericType)
+    /// <summary>
+    /// Check if the given source type implements the given interface type.
+    /// </summary>
+    /// <param name="sourceType">Source type.</param>
+    /// <param name="interfaceType">Interface type.</param>
+    /// <returns>True if the source type implements the given generic type.</returns>
+    /// <exception cref="ArgumentNullException">Source type or given interface type is null.</exception>
+    /// <exception cref="ArgumentException">Given interface type is not an interface.</exception>
+    public static bool ImplementsInterface(this Type sourceType, Type interfaceType)
     {
         if (sourceType is null)
         {
             throw new ArgumentNullException(nameof(sourceType));
         }
 
-        if (genericType is null)
+        if (interfaceType is null)
         {
-            throw new ArgumentNullException(nameof(genericType));
+            throw new ArgumentNullException(nameof(interfaceType));
         }
 
-        return sourceType.BaseType?.FindGenericType(genericType) != null;
+        if (!interfaceType.IsInterface)
+        {
+            throw new ArgumentException($"The given interface type '{interfaceType.FullName}' is not an interface.");
+        }
+
+        if (interfaceType.IsGenericType)
+        {
+            return sourceType.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
+        }
+        else
+        {
+            return sourceType.GetInterfaces().Any(x => x == interfaceType);
+        }
     }
 
-    public static Type? FindGenericType(this Type sourceType, Type? genericType)
+    /// <summary>
+    /// Gets the parameters types of a generic interface type implemented by the given source type.
+    /// </summary>
+    /// <param name="sourceType">Source type.</param>
+    /// <param name="interfaceType">Interface type.</param>
+    /// <returns>The generic interface parameters types.</returns>
+    /// <exception cref="ArgumentNullException">Source type or given interface type is null.</exception>
+    /// <exception cref="ArgumentException">Given interface type is not an interface.</exception>
+    public static IEnumerable<Type>? GetGenericInterfaceParameters(this Type sourceType, Type interfaceType)
     {
-        if (sourceType == null)
+        if (sourceType is null)
         {
             throw new ArgumentNullException(nameof(sourceType));
         }
 
-        if (sourceType.BaseType == null)
+        if (interfaceType is null)
         {
-            return null;
+            throw new ArgumentNullException(nameof(interfaceType));
         }
 
-        if (!sourceType.IsGenericType)
+        if (!interfaceType.IsInterface)
         {
-            return sourceType.BaseType.FindGenericType(genericType);
+            throw new ArgumentException($"The given interface type '{interfaceType.FullName}' is not an interface.");
         }
 
-        if (sourceType.GetGenericTypeDefinition() == genericType)
+        if (interfaceType.IsGenericType)
         {
-            return sourceType;
+            return sourceType.GetInterfaces().SingleOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == interfaceType)?.GetGenericArguments();
         }
-
-        if (sourceType.BaseType != null)
+        else
         {
-            return sourceType.BaseType.FindGenericType(genericType);
+            return sourceType.GetInterfaces().SingleOrDefault(x => x == interfaceType)?.GetGenericArguments();
         }
-
-        return null;
     }
 }
