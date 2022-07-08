@@ -1,5 +1,7 @@
 # LiteMessageHandler
 
+[![.NET](https://github.com/Eastrall/LiteMessageHandler/actions/workflows/build.yml/badge.svg)](https://github.com/Eastrall/LiteMessageHandler/actions/workflows/build.yml)
+
 `LiteMessageHandler` is a simple messaging system.
 
 ## How it works
