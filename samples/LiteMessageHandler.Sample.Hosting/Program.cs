@@ -47,7 +47,7 @@ public class PersonRequestHandler : IMessageHandler<PersonRequest>
 
     public void Execute(PersonRequest message)
     {
-        _consoleService.WriteLine($"AuthRequest: {message.FirstName} {message.LastName}");
+        _consoleService.WriteLine($"PersonRequest: {message.FirstName} {message.LastName}");
     }
 }
 

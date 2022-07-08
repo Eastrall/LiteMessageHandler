@@ -20,7 +20,7 @@ public class PersonRequestHandler : IMessageHandler<PersonRequest>
 {
     public void Execute(PersonRequest message)
     {
-        Console.WriteLine($"AuthRequest: {message.FirstName} {message.LastName}");
+        Console.WriteLine($"PersonRequest: {message.FirstName} {message.LastName}");
     }
 }
 
