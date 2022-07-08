@@ -10,18 +10,14 @@ namespace LiteMessageHandler;
 public class MessageHandlerDispatcher : IMessageHandlerDispatcher
 {
     private readonly IServiceProvider? _serviceProvider;
-    private MessageHandlerActionCache? _handlerCache;
+    private readonly MessageHandlerActionCache _handlerCache;
 
     public MessageHandlerDispatcher(IServiceProvider? serviceProvider = null)
     {
         _serviceProvider = serviceProvider;
-    }
 
-    public void Load(params Assembly[] assemblies)
-    {
-        Assembly[]? assembliesToLoad = assemblies?.Length > 0 ? assemblies : AppDomain.CurrentDomain.GetAssemblies();
-
-        Dictionary<Type, MessageHandlerAction>? handlers = assembliesToLoad.SelectMany(x => x.GetTypes())
+        Dictionary<Type, MessageHandlerAction>? handlers = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(x => x.GetTypes())
             .Where(x => x.IsClass && !x.IsAbstract && x.ImplementsInterface(typeof(IMessageHandler<>)))
             .Select(x => new MessageHandlerAction(x))
             .ToDictionary(keySelector: x => x.HandlerParameterType, elementSelector: x => x);
@@ -31,11 +27,6 @@ public class MessageHandlerDispatcher : IMessageHandlerDispatcher
 
     public MessageHandler? GetHandler(Type? handlerType)
     {
-        if (_handlerCache == null)
-        {
-            throw new ArgumentException("Cannot get message handler from cache.");
-        }
-
         MessageHandlerAction? handler = _handlerCache.GetMessageHandler(handlerType);
 
         if (handler == null)

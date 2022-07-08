@@ -8,7 +8,6 @@ internal class Program
     {
         var messageDispatcher = new MessageHandlerDispatcher();
 
-        messageDispatcher.Load();
         messageDispatcher.Dispatch(new PersonRequest
         {
             FirstName = "John",

@@ -8,11 +8,6 @@ namespace LiteMessageHandler;
 /// </summary>
 public interface IMessageHandlerDispatcher : IDisposable
 {
-    /// <summary>
-    /// Loads the message handlers based on the current domain
-    /// </summary>
-    void Load(params Assembly[] assemblies);
-
     MessageHandler? GetHandler(Type? type);
 
     MessageHandler? GetHandler<TMessage>();
