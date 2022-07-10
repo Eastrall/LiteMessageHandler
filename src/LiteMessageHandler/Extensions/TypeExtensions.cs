@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MessageHandler.Extensions;
+namespace LiteMessageHandler.Extensions;
 
 internal static class ReflectionExtensions
 {

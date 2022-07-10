@@ -1,4 +1,4 @@
-﻿using MessageHandler.Extensions;
+﻿using LiteMessageHandler.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;

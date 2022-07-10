@@ -1,9 +1,8 @@
-﻿using LiteMessageHandler.Internal;
-using MessageHandler.Extensions;
+﻿using LiteMessageHandler.Extensions;
+using LiteMessageHandler.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace LiteMessageHandler;
 
