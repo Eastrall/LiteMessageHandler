@@ -1,6 +1,7 @@
 ﻿using LiteMessageHandler.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace LiteMessageHandler.Internal;
@@ -15,6 +16,8 @@ internal class MessageHandlerAction
 
     public MessageHandlerExecutor Executor { get; }
 
+    public IEnumerable<Attribute> Attributes { get; }
+
     public MessageHandlerAction(Type? handlerType)
     {
         HandlerType = handlerType ?? throw new ArgumentNullException(nameof(handlerType));
@@ -22,6 +25,7 @@ internal class MessageHandlerAction
             ?? throw new ArgumentException("Cannot find generic parameter type.");
         Executor = new MessageHandlerExecutor(HandlerType, HandlerParameterType);
         _objectFactory = ActivatorUtilities.CreateFactory(handlerType, Type.EmptyTypes);
+        Attributes = handlerType.GetCustomAttributes(false).Cast<Attribute>().AsEnumerable();
     }
 
     public object? CreateInstance(IServiceProvider? serviceProvider)

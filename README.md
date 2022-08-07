@@ -177,3 +177,69 @@ public class PersonRequest
     public string? LastName { get; set; }
 }
 ```
+
+### Custom attribute metadata support
+
+In some cases, you might want to annotate your handlers to be able to apply special treatements when you invoke them.
+LiteMessageHandler now provides a way to retrieve the handler's attributes.
+
+```csharp
+using LiteMessageHandler;
+using System;
+using System.Linq;
+
+internal class Program
+{
+    static void Main()
+    {
+        MessageHandlerDispatcher? messageDispatcher = new();
+        MessageHandler? handler = messageDispatcher.GetHandler<PersonRequest>();
+
+        if (handler != null)
+        {
+            var attribute = handler.GetAttributes<CustomPersonAttribute>().First();
+
+            Console.WriteLine($"Handler attribute value = '{attribute.Parameter}'");
+
+            handler.Execute(new PersonRequest
+            {
+                FirstName = "John",
+                LastName = "Doe"
+            });
+        }
+    }
+}
+
+[CustomPerson("This is a custom person attribute!")]
+public class PersonRequestHandler : IMessageHandler<PersonRequest>
+{
+    public void Execute(PersonRequest message)
+    {
+        Console.WriteLine($"PersonRequest: {message.FirstName} {message.LastName}");
+    }
+}
+
+public class PersonRequest
+{
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class CustomPersonAttribute : Attribute
+{
+    public string Parameter { get; }
+
+    public CustomPersonAttribute(string parameter)
+    {
+        Parameter = parameter;
+    }
+}
+```
+
+This snippet above will display the following output:
+```
+Handler attribute value = 'This is a custom person attribute!'
+PersonRequest: John Doe
+```
