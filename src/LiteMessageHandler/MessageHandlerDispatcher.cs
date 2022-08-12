@@ -28,6 +28,11 @@ public class MessageHandlerDispatcher : IMessageHandlerDispatcher
 
     public MessageHandler? GetHandler(Type? handlerType)
     {
+        if (handlerType == null)
+        {
+            throw new ArgumentNullException(nameof(handlerType));
+        }
+
         MessageHandlerAction? handler = _handlerCache.GetMessageHandler(handlerType);
 
         if (handler == null)
@@ -38,12 +43,12 @@ public class MessageHandlerDispatcher : IMessageHandlerDispatcher
         return new MessageHandler(handler.CreateInstance(_serviceProvider), handler);
     }
 
-    public MessageHandler? GetHandler<TMessage>()
+    public MessageHandler? GetHandler<TMessage>() where TMessage : class
     {
         return GetHandler(typeof(TMessage));
     }
 
-    public void Dispatch<TMessage>(TMessage message)
+    public void Dispatch<TMessage>(TMessage message) where TMessage : class
     {
         MessageHandler? handler = GetHandler(typeof(TMessage));
 

@@ -9,7 +9,7 @@ public interface IMessageHandlerDispatcher : IDisposable
 {
     MessageHandler? GetHandler(Type? type);
 
-    MessageHandler? GetHandler<TMessage>();
+    MessageHandler? GetHandler<TMessage>() where TMessage : class;
 
-    void Dispatch<TMessage>(TMessage message);
+    void Dispatch<TMessage>(TMessage message) where TMessage : class;
 }
