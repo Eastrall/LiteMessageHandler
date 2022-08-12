@@ -3,6 +3,7 @@ using LiteMessageHandler.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace LiteMessageHandler;
 
@@ -11,12 +12,13 @@ public class MessageHandlerDispatcher : IMessageHandlerDispatcher
     private readonly IServiceProvider? _serviceProvider;
     private readonly MessageHandlerActionCache _handlerCache;
 
-    public MessageHandlerDispatcher(IServiceProvider? serviceProvider = null)
+    public MessageHandlerDispatcher(IServiceProvider? serviceProvider = null, params Assembly[] assemblies)
     {
+        IEnumerable<Assembly> assembliesToLoad = assemblies.Length > 0 ? assemblies : AppDomain.CurrentDomain.GetAssemblies();
+
         _serviceProvider = serviceProvider;
 
-        Dictionary<Type, MessageHandlerAction>? handlers = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
+        Dictionary<Type, MessageHandlerAction>? handlers = assembliesToLoad.SelectMany(x => x.GetTypes())
             .Where(x => x.IsClass && !x.IsAbstract && x.ImplementsInterface(typeof(IMessageHandler<>)))
             .Select(x => new MessageHandlerAction(x))
             .ToDictionary(keySelector: x => x.HandlerParameterType, elementSelector: x => x);
